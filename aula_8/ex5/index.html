@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foto e Localização</title>
+    <style>
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        iframe {
+            width: 100%;
+            height: 350px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Última Foto e Localização</h1>
+    <div class="container">
+        <button onclick="tirarFoto()">Tirar Foto</button>
+        <br><br>
+        <img id="fotoSalva" alt="Última foto" />
+        <div id="mapaContainer">
+            <iframe id="mapa" frameborder="0" scrolling="no"></iframe>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('deviceready', function () {
+            // Função para carregar a última foto e mapa ao abrir o app
+            carregarUltimaFoto();
+        });
+
+        // Função para carregar a última foto e mapa
+        function carregarUltimaFoto() {
+            const fotoBase64 = localStorage.getItem('foto');
+            const latitude = localStorage.getItem('latitude');
+            const longitude = localStorage.getItem('longitude');
+
+            if (fotoBase64) {
+                document.getElementById('fotoSalva').src = "data:image/jpeg;base64," + fotoBase64;
+            }
+
+            if (latitude && longitude) {
+                const iframeURL = `https://www.openstreetmap.org/export/embed.html?bbox=${longitude-0.01},${latitude-0.01},${longitude+0.01},${latitude+0.01}&layer=mapnik&marker=${latitude},${longitude}`;
+                document.getElementById('mapa').src = iframeURL;
+            }
+        }
+
+        // Função para tirar a foto e salvar no localStorage
+        function tirarFoto() {
+            navigator.camera.getPicture(onSuccess, onFail, {
+                quality: 50,
+                destinationType: Camera.DestinationType.DATA_URL // Foto em Base64
+            });
+        }
+
+        // Sucesso ao capturar a foto
+        function onSuccess(imageData) {
+            // Salvar a foto no localStorage
+            localStorage.setItem('foto', imageData);
+
+            // Atualiza a foto exibida
+            document.getElementById('fotoSalva').src = "data:image/jpeg;base64," + imageData;
+
+            // Captura a posição atual
+            navigator.geolocation.getCurrentPosition(geoSuccess, geoError);
+        }
+
+        // Falha ao capturar a foto
+        function onFail(message) {
+            alert('Falha ao capturar a foto: ' + message);
+        }
+
+        // Sucesso ao obter a localização
+        function geoSuccess(position) {
+            const latitude = position.coords.latitude;
+            const longitude = position.coords.longitude;
+
+            // Salva latitude e longitude no localStorage
+            localStorage.setItem('latitude', latitude);
+            localStorage.setItem('longitude', longitude);
+
+            // Atualiza o mapa exibido
+            const iframeURL = `https://www.openstreetmap.org/export/embed.html?bbox=${longitude-0.01},${latitude-0.01},${longitude+0.01},${latitude+0.01}&layer=mapnik&marker=${latitude},${longitude}`;
+            document.getElementById('mapa').src = iframeURL;
+        }
+
+        // Falha ao obter a localização
+        function geoError(error) {
+            alert('Erro ao obter localização: ' + error.message);
+        }
+    </script>
+
+    <script src="cordova.js"></script>
+</body>
+</html>
