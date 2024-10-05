@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enviar Foto para Imgbb</title>
+</head>
+<body>
+    <h1 class="text-center">Capturar Foto e Enviar para Imgbb</h1>
+    <div class="text-center">
+        <button onclick="tirarFoto()">Tirar Foto</button>
+        <br><br>
+        <img id="resultado" width="300" height="300" alt="Imagem capturada aparecerá aqui">
+        <p id="saida"></p>
+    </div>
+
+    <script>
+        // Função para capturar a foto usando a câmera do dispositivo
+        function tirarFoto() {
+            navigator.camera.getPicture(onSuccess, onFail, {
+                quality: 50,
+                destinationType: Camera.DestinationType.DATA_URL // Base64
+            });
+        }
+
+        // Sucesso ao capturar a foto
+        function onSuccess(imageData) {
+            // Exibe a imagem capturada na página
+            var image = document.getElementById('resultado');
+            image.src = "data:image/jpeg;base64," + imageData;
+
+            // Chama a função para enviar a foto para o Imgbb
+            sendData(imageData);
+        }
+
+        // Falha ao capturar a foto
+        function onFail(message) {
+            alert('Falha ao capturar a foto: ' + message);
+        }
+
+        // Função para enviar a imagem capturada para o Imgbb
+        function sendData(imageData) {
+            // Cria formulário para enviar a imagem
+            const formData = new FormData();
+            formData.append('expiration', '600000'); // Expiração de 10 minutos
+            formData.append('key', 'SUA_CHAVE_API_IMGBB'); // Substitua pela sua chave API do Imgbb
+
+            // Adiciona a imagem em base64
+            formData.append('image', imageData);
+
+            fetch('https://api.imgbb.com/1/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json()) // Parse the response as JSON
+            .then(data => {
+                console.log('Success:', data);
+                // Exibe a imagem thumb retornada no Imgbb
+                document.getElementById('resultado').src = data.data.thumb.url;
+                document.getElementById('saida').textContent = "Imagem carregada: " + data.data.thumb.url;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('saida').textContent = "Erro ao carregar a imagem.";
+            });
+        }
+    </script>
+
+    <script src="cordova.js"></script>
+</body>
+</html>
