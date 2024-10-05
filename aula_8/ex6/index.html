@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo com Trenzinho</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://pixijs.download/release/pixi.min.js"></script>
+    <style>
+        body {
+            position: relative;
+            height: 100vh;
+            background-color: #f8f9fa;
+            overflow: hidden;
+        }
+        #gameContainer {
+            width: 100%;
+            height: 80vh;
+            position: relative;
+            background-color: #e0e0e0;
+            border: 2px solid #000;
+        }
+        #pontuacao {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div id="pontuacao">Pontuação: 0</div>
+    <div id="gameContainer"></div>
+
+    <script>
+        // Configurando a pontuação
+        let pontuacao = 0;
+        const pontuacaoDisplay = document.getElementById('pontuacao');
+
+        // Criando o jogo com PixiJS
+        const app = new PIXI.Application({
+            width: window.innerWidth,
+            height: window.innerHeight * 0.8,
+            backgroundColor: 0x1099bb
+        });
+        document.getElementById('gameContainer').appendChild(app.view);
+
+        // Carregar a textura do trem
+        const trainTexture = PIXI.Texture.from('https://pixijs.com/assets/train.png');
+        const train = new PIXI.Sprite(trainTexture);
+
+        train.anchor.set(0.5);
+        train.x = app.screen.width / 2;
+        train.y = app.screen.height / 2;
+        app.stage.addChild(train);
+
+        let trainSpeed = 2;
+        let direction = 1; // 1 = para a direita, -1 = para a esquerda
+
+        // Função para mover o trem
+        function moveTrain() {
+            train.x += trainSpeed * direction;
+
+            // Se o trem atingir a borda, ele muda de direção
+            if (train.x > app.screen.width - train.width / 2 || train.x < train.width / 2) {
+                direction *= -1;
+            }
+
+            // Animação contínua
+            requestAnimationFrame(moveTrain);
+        }
+
+        // Começa o movimento do trem
+        moveTrain();
+
+        // Função para aumentar a pontuação
+        function aumentarPontuacao() {
+            pontuacao++;
+            pontuacaoDisplay.innerText = `Pontuação: ${pontuacao}`;
+        }
+
+        // Evento de clique no trem
+        train.interactive = true;
+        train.buttonMode = true;
+        train.on('pointerdown', () => {
+            aumentarPontuacao();
+        });
+    </script>
+</body>
+</html>
