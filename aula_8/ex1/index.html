@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tema App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        body[data-bs-theme="dark"] {
+            background-color: #121212;
+            color: white;
+        }
+        body[data-bs-theme="light"] {
+            background-color: white;
+            color: black;
+        }
+    </style>
+</head>
+<body id="app" data-bs-theme="light">
+    <div class="container">
+        <h1 class="text-center my-4">Configurações do App</h1>
+
+        <!-- Formulário para o nome do usuário -->
+        <div class="mb-3">
+            <label for="nomeUsuario" class="form-label">Digite seu nome:</label>
+            <input type="text" class="form-control" id="nomeUsuario" placeholder="Seu nome">
+        </div>
+
+        <!-- Seletor de tema -->
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="switchTema">
+            <label class="form-check-label" for="switchTema">Tema escuro</label>
+        </div>
+
+        <button id="salvar" class="btn btn-primary mt-3">Salvar Configurações</button>
+        
+        <h2 id="boasVindas" class="text-center mt-5"></h2>
+    </div>
+
+    <script>
+        document.addEventListener('deviceready', function() {
+            const nomeInput = document.getElementById('nomeUsuario');
+            const temaSwitch = document.getElementById('switchTema');
+            const boasVindas = document.getElementById('boasVindas');
+            const body = document.getElementById('app');
+            
+            // Carrega as configurações armazenadas no localStorage
+            const nomeSalvo = localStorage.getItem('nome');
+            const temaSalvo = localStorage.getItem('tema');
+
+            if (nomeSalvo) {
+                boasVindas.textContent = `Bem-vindo, ${nomeSalvo}!`;
+                nomeInput.value = nomeSalvo;
+            }
+
+            if (temaSalvo === 'dark') {
+                body.dataset.bsTheme = 'dark';
+                temaSwitch.checked = true;
+            } else {
+                body.dataset.bsTheme = 'light';
+                temaSwitch.checked = false;
+            }
+
+            // Função para salvar as configurações
+            document.getElementById('salvar').addEventListener('click', function() {
+                const nome = nomeInput.value;
+                const tema = temaSwitch.checked ? 'dark' : 'light';
+                
+                // Armazena os valores no localStorage
+                localStorage.setItem('nome', nome);
+                localStorage.setItem('tema', tema);
+
+                // Aplica as configurações
+                body.dataset.bsTheme = tema;
+                boasVindas.textContent = `Bem-vindo, ${nome}!`;
+            });
+        });
+    </script>
+
+    <script src="cordova.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>
